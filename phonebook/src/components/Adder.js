@@ -9,7 +9,7 @@ const Adder = ({ addPerson, entry, nameChanged, phoneChanged }) => {
           name: <input value={entry.name} onChange={nameChanged} />
         </div>
         <div>
-          number: <input value={entry.phone} onChange={phoneChanged} />
+          number: <input value={entry.number} onChange={phoneChanged} />
         </div>
         <div>
           <button type="submit">add</button>

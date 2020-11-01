@@ -1,29 +1,59 @@
 import React, { useEffect, useState } from "react";
-import axios from 'axios'
+import noteService from './services/Notes'
 import Adder from "./components/Adder";
 import Numbers from "./components/Numbers";
 import Filter from "./components/Filter"
 
 const App = () => {
   const [persons, setPersons] = useState([]);
-  const [newEntry, setNewEntry] = useState({ name: "", phone: "" });
+  const [newEntry, setNewEntry] = useState({ name: "", number: "" });
   const [filter, setFilter] = useState("")
 
+  const resetEntry = () => {
+    setNewEntry({ name: "", number: "" })
+  }
+
     const personsHook = () => {
-      axios.get('http://localhost:3001/persons')
-           .then(response => {
-             setPersons(response.data)
+      noteService.getAll()
+           .then(notes => {
+             setPersons(notes)
            })
     }
 
     const addPerson = (event) => {
         event.preventDefault()
-        if (persons.filter(person => person.name === newEntry.name).length > 0) {
-            alert(`${newEntry.name} is already added to phonebook`)
+        const person = persons.find(person => person.name === newEntry.name)
+
+        if (person) {
+            const isConfirmed = window.confirm(`${newEntry.name} is already added to phonebook. Do you want to update?`)
+            if (isConfirmed) {
+              updatePerson(person)
+            }
         } else {
-            setPersons(persons.concat(newEntry))
-            setNewEntry({ name: "", phone: "" })
+            noteService.create(newEntry)
+                       .then(newNote => {
+                          setPersons(persons.concat(newNote))
+                          resetEntry()
+                       })
         }
+    }
+
+    const removePerson = (person) => {
+      const isConfirmed = window.confirm(`Do you want to delete ${person.name}?`)
+      if (isConfirmed) {
+        noteService.remove(person.id)
+                   .then(() => {
+                    setPersons(persons.filter(entry => entry.id !== person.id))
+                  })
+      }
+    }
+
+    const updatePerson = (person) => {
+      noteService.update(person.id, newEntry)
+                 .then(updated => {
+                   setPersons(persons.map(person => person.name === updated.name ? updated : person))
+                   resetEntry()
+                 })
     }
 
     const onNameChanged = (event) => {
@@ -37,7 +67,7 @@ const App = () => {
     const onPhoneChanged = (event) => {
         const entry = {
             ...newEntry,
-            phone: event.target.value
+            number: event.target.value
         }
         setNewEntry(entry)
     }
@@ -49,7 +79,7 @@ const App = () => {
       <h2>Phonebook</h2>
       <Filter filter={filter} setFilter={setFilter} />
       <Adder addPerson={addPerson} entry={newEntry} nameChanged={onNameChanged} phoneChanged={onPhoneChanged} />
-      <Numbers persons={persons} filter={filter} />
+      <Numbers persons={persons} filter={filter} removeFunc={removePerson} />
     </div>
   );
 };
