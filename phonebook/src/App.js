@@ -1,12 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from 'axios'
 import Adder from "./components/Adder";
 import Numbers from "./components/Numbers";
 import Filter from "./components/Filter"
 
 const App = () => {
-  const [persons, setPersons] = useState([{ name: "Arto Hellas", phone: "0789123" }]);
+  const [persons, setPersons] = useState([]);
   const [newEntry, setNewEntry] = useState({ name: "", phone: "" });
   const [filter, setFilter] = useState("")
+
+    const personsHook = () => {
+      axios.get('http://localhost:3001/persons')
+           .then(response => {
+             setPersons(response.data)
+           })
+    }
 
     const addPerson = (event) => {
         event.preventDefault()
@@ -33,6 +41,8 @@ const App = () => {
         }
         setNewEntry(entry)
     }
+
+    useEffect(personsHook, [])
 
   return (
     <div>
