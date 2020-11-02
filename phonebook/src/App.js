@@ -29,6 +29,7 @@ const App = () => {
   const personsHook = () => {
     noteService.getAll().then((notes) => {
       setPersons(notes);
+      console.log(notes);
     });
   };
 
