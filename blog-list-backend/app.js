@@ -1,6 +1,8 @@
+/* eslint-disable no-undef */
 const config = require('./utils/config')
 const express = require('express')
 require('express-async-errors')
+require('dotenv').config()
 const app = express()
 const cors = require('cors')
 
@@ -31,6 +33,12 @@ app.use(middleware.tokenExtractor)
 app.use('/api/users', userRouter)
 app.use('/api/login', loginRouter)
 app.use('/api/blogs', blogsRouter)
+
+if (process.env.NODE_ENV === 'test') {
+    console.log('testingRouter is added')
+    const testingRouter = require('./controllers/test')
+    app.use('/api/testing', testingRouter)
+}
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
