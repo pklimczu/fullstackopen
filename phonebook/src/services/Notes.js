@@ -1,26 +1,14 @@
-import axios from 'axios'
+import { useResource } from '../hooks/index'
 
-const baseUrl = 'http://localhost:3001/api/persons'
+export const NoteService = () => {
+    const baseUrl = '/api/persons'
 
-const getAll = () => {
-    return axios.get(baseUrl)
-                .then(response => response.data)
+    const resource = useResource(baseUrl)
+
+    return {
+        getAll: resource.getAll,
+        create: resource.create,
+        remove: resource.remove,
+        update: resource.update
+    }
 }
-
-const create = (newNote) => {
-    return axios.post(baseUrl, newNote)
-                .then(response => response.data)
-}
-
-const remove = (id) => {
-    return axios.delete(`${baseUrl}/${id}`)
-                .then(response => response.data)
-}
-
-const update = (id, note) => {
-    return axios.put(`${baseUrl}/${id}`, note)
-                .then(response => response.data)
-} 
-
-
-export default { getAll, create, remove, update }

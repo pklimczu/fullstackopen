@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import noteService from "./services/Notes";
+import { NoteService } from "./services/Notes";
 import Adder from "./components/Adder";
 import Numbers from "./components/Numbers";
 import Filter from "./components/Filter";
@@ -10,6 +10,7 @@ const App = () => {
   const [newEntry, setNewEntry] = useState({ name: "", number: "" });
   const [filter, setFilter] = useState("");
   const [notification, setNotification] = useState({ message: null, isError: false });
+  const noteService = NoteService()
 
   const resetEntry = () => {
     setNewEntry({ name: "", number: "" });
@@ -45,11 +46,16 @@ const App = () => {
         updatePerson(person);
       }
     } else {
-      noteService.create(newEntry).then((newNote) => {
+      noteService.create(newEntry)
+      .then((newNote) => {
         setPersons(persons.concat(newNote));
         defineNotification(`${newNote.name} is added`, false)
         resetEntry();
-      });
+      })
+      .catch(error => {
+        const msg = error.response.data.error_msg
+        defineNotification(`Oops, something went wrong when removing: ${msg}`, true)
+      })
     }
   };
 

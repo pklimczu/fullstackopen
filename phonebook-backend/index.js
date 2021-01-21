@@ -1,118 +1,139 @@
-const { request, response } = require('express');
-const express = require('express');
-const app = express();
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
+require('dotenv').config()
+const express = require('express')
+const app = express()
+const Entry = require('./models/entry')
 
 app.use(express.json())
 
+// Logging configuration
 const morgan = require('morgan')
 app.use(morgan('tiny', {
-  skip: (req, res) => { return req.method === "POST" }
+    skip: (req) => { return req.method === 'POST' }
 }))
 
 // Detailed logging of POST
 morgan.token('content', (req) => {
-  return JSON.stringify(req.body)
+    return JSON.stringify(req.body)
 })
 app.use(morgan(':method :url :status :response-time ms :content', {
-  skip: (req, res) => { return req.method !== "POST" }
+    skip: (req) => { return req.method !== 'POST' }
 }))
 
+// CORS
 const cors = require('cors')
 app.use(cors())
 
-let phonebook = {
-  persons: [
-    {
-      name: "Arto Hellas",
-      number: "040-123456",
-      id: 1,
-    },
-    {
-      name: "Ada Lovelace",
-      number: "39-44-5323523",
-      id: 2,
-    },
-    {
-      name: "Dan Abramov",
-      number: "12-43-234345",
-      id: 3,
-    },
-    {
-      name: "Mary Poppendieck",
-      number: "39-23-6423122",
-      id: 4,
+// Using static build of frontend
+app.use(express.static('build'))
+
+// HANDLERS
+app.get('/', (request, response) => {
+    response.redirect('/api/persons')
+})
+
+app.get('/api/persons', (request, response, next) => {
+    Entry.find({}).then(entries => {
+        response.json(entries)
+    })
+        .catch(error => next(error))
+})
+
+app.get('/info', (request, response, next) => {
+    Entry.find({}).then(entries => {
+        const size = entries.length
+        const date = (new Date()).toString()
+        response.send(`Phonebook has info for ${size} people.<br/>${date}`)
+    })
+        .catch(error => next(error))
+})
+
+app.get('/api/persons/:id', (request, response, next) => {
+    Entry.findById(request.params.id).then(entry => {
+        if (entry) {
+            response.json(entry)
+        } else {
+            response.status(404).end()
+        }
+    })
+        .catch(error => next(error))
+})
+
+app.delete('/api/persons/:id', (request, response, next) => {
+    Entry.findByIdAndDelete(request.params.id).then(() => {
+        response.status(204).end()
+    })
+        .catch(error => next(error))
+})
+
+app.post('/api/persons', (request, response, next) => {
+    const body = request.body
+
+    if (!body.name || !body.number) {
+        return response.status(400).json({
+            error: 'content missing'
+        })
     }
-  ]
-};
 
-app.get("/", (request, response) => {
-  response.send(`<h1>Hello World!</h1>`);
-});
+    Entry.find({})
+        .then(entries => {
+            let index = entries.findIndex(person => person.name === body.name)
+            if (index === -1)
+                return true
+            else
+                throw 'name must be unique'
+        })
+        .then(() => {
+            const person = new Entry({
+                name: body.name,
+                number: body.number
+            })
 
-app.get("/api/persons", (request, response) => {
-    response.json(phonebook.persons)
+            return person.save()
+        })
+        .then(savedPerson => {
+            return response.json(savedPerson)
+        })
+        .catch(error => next(error))
 })
 
-app.get("/info", (request, response) => {
-    const phonebookSize = phonebook.persons.length
-    const date = (new Date()).toString()
-    response.send(`Phonebook has info for ${phonebookSize} people.<br/>${date}`)
-})
+app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body
 
-app.get("/api/persons/:id", (request, response) => {
-    const id = Number(request.params.id)
-    const person = phonebook.persons.find(person => person.id == id)
-
-    if (person) {
-        response.json(person)
-    } else {
-        response.status(404).end()
+    const entry = {
+        name: body.name,
+        number: body.number
     }
+
+    Entry.findByIdAndUpdate(request.params.id, entry, { new: true })
+        .then(updatedEntry => {
+            response.json(updatedEntry)
+        })
+        .catch(error => next(error))
 })
 
-app.delete("/api/persons/:id", (request, response) => {
-  const id = Number(request.params.id)
-  phonebook.persons = phonebook.persons.filter(person => person.id !== id)
-
-  response.status(204).end()
-})
-
-const generateId = () => {
-  return Math.floor(Math.random() * 10000)
+// Error handlers
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({ error: 'unknown endpoint' })
 }
+app.use(unknownEndpoint)
 
-const isNameDuplicated = (name) => {
-  const isDuplicated = phonebook.persons.findIndex(person => person.name === name)
-  return isDuplicated === -1
-} 
+const errorHandler = (error, request, response, next) => {
+    console.log(error)
 
-app.post("/api/persons", (request, response) => {
-  const body = request.body
+    if (error.name === 'CastError') {
+        return response.status(400).send({ error_msg: 'malformatted id' })
+    } else if (error.name === 'ValidationError') {
+        return response.status(400).json({ error_msg: error.message })
+    } else {
+        return response.status(400).json({ error_msg: error })
+    }
+}
+app.use(errorHandler)
 
-  if (!body.name || !body.number) {
-    return response.status(400).json({
-      error: 'content missing'
-    })
-  }
-
-  if (!isNameDuplicated(body.name)) {
-    return response.status(400).json({
-      error: 'name must be unique'
-    })
-  }
-
-  const person = {
-    name: body.name,
-    number: body.number,
-    id: generateId()
-  }
-
-  phonebook.persons = phonebook.persons.concat(person)
-
-  response.json(person)
-})
-
-const PORT = process.env.PORT || 3001
+// Run
+const PORT = process.env.PORT
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+    console.log(`Server running on port ${PORT}`)
+})
