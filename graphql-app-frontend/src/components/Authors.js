@@ -1,11 +1,43 @@
   
-import React from 'react'
+import { useMutation, useQuery } from '@apollo/client'
+import React, { useEffect, useState } from 'react'
+import { ALL_AUTHORS, EDIT_AUTHOR } from '../graphql/queries'
 
 const Authors = (props) => {
+
+  const [name, setName] = useState('')
+  const [born, setBorn] = useState('')
+
+  const [ editAuthor, resultEditAuthor ] = useMutation(EDIT_AUTHOR)
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (resultEditAuthor.data && resultEditAuthor.data.editAuthor === null) {
+      console.log("Oops, something went wrong")
+    }
+  }, [resultEditAuthor.data])
+
   if (!props.show) {
     return null
   }
-  const authors = []
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const authors = useQuery(ALL_AUTHORS, {
+    pollInterval: 2000
+  })
+
+  if (authors.loading) {
+    return <div>loading...</div>
+  }
+
+  const submit = async (event) => {
+    event.preventDefault()
+
+    editAuthor({ variables: { name, born: parseInt(born) }})
+
+    setName('')
+    setBorn('')
+  }
 
   return (
     <div>
@@ -21,7 +53,7 @@ const Authors = (props) => {
               books
             </th>
           </tr>
-          {authors.map(a =>
+          {authors.data.allAuthors.map(a =>
             <tr key={a.name}>
               <td>{a.name}</td>
               <td>{a.born}</td>
@@ -31,6 +63,18 @@ const Authors = (props) => {
         </tbody>
       </table>
 
+      <h4>Edit author</h4>
+      <form onSubmit={submit}>
+        <div>
+          name
+          <input value={name} onChange={({ target }) => setName(target.value)} />
+        </div>
+        <div>
+          born
+          <input value={born} onChange={({ target }) => setBorn(target.value)} />
+        </div>
+        <button type='submit'>edit author</button>
+      </form>
     </div>
   )
 }

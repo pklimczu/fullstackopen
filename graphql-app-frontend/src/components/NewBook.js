@@ -1,11 +1,15 @@
+import { useMutation } from '@apollo/client'
 import React, { useState } from 'react'
+import { ADD_BOOK } from '../graphql/queries'
 
 const NewBook = (props) => {
-  const [title, setTitle] = useState('')
-  const [author, setAuhtor] = useState('')
-  const [published, setPublished] = useState('')
+  const [title, setTitle] = useState('test')
+  const [author, setAuhtor] = useState('test')
+  const [published, setPublished] = useState('1982')
   const [genre, setGenre] = useState('')
-  const [genres, setGenres] = useState([])
+  const [genres, setGenres] = useState(['test'])
+
+  const [ addBook ] = useMutation(ADD_BOOK)
 
   if (!props.show) {
     return null
@@ -14,7 +18,8 @@ const NewBook = (props) => {
   const submit = async (event) => {
     event.preventDefault()
     
-    console.log('add book...')
+    const publishedInt = parseInt(published)
+    addBook({ variables: { title, author, published: publishedInt, genres }})
 
     setTitle('')
     setPublished('')
