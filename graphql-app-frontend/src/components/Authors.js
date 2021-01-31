@@ -19,7 +19,7 @@ const Authors = (props) => {
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const authors = useQuery(ALL_AUTHORS, {
-    pollInterval: 2000
+    pollInterval: 5000
   })
 
   const submit = async (event) => {
@@ -35,9 +35,11 @@ const Authors = (props) => {
     return null
   }
 
-  if (authors.loading) {
+  if (authors.loading || authors.data === undefined) {
     return <div>loading...</div>
   }
+
+  console.log("AUTHORS", authors)
 
   return (
     <div>
