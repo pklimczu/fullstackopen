@@ -17,18 +17,10 @@ const Authors = (props) => {
     }
   }, [resultEditAuthor.data])
 
-  if (!props.show) {
-    return null
-  }
-
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const authors = useQuery(ALL_AUTHORS, {
     pollInterval: 2000
   })
-
-  if (authors.loading) {
-    return <div>loading...</div>
-  }
 
   const submit = async (event) => {
     event.preventDefault()
@@ -37,6 +29,14 @@ const Authors = (props) => {
 
     setName('')
     setBorn('')
+  }
+
+  if (!props.show) {
+    return null
+  }
+
+  if (authors.loading) {
+    return <div>loading...</div>
   }
 
   return (
@@ -67,7 +67,9 @@ const Authors = (props) => {
       <form onSubmit={submit}>
         <div>
           name
-          <input value={name} onChange={({ target }) => setName(target.value)} />
+          <select value={name} onChange={({ target }) => setName(target.value)}>
+            {authors.data.allAuthors.map(author => <option value={author.name} key={author.name}>{author.name}</option>)}
+          </select>
         </div>
         <div>
           born
