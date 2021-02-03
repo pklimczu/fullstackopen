@@ -3,21 +3,28 @@ import Authors from './components/Authors'
 import Books from './components/Books'
 import NewBook from './components/NewBook'
 import Login from './components/Login'
-import { useApolloClient } from '@apollo/client'
+import { useApolloClient, useLazyQuery } from '@apollo/client'
 import Recommended from './components/Recommended'
+import { ME } from './graphql/queries'
 
 
 const App = () => {
+  const [getUser, userData] = useLazyQuery(ME)
   const [page, setPage] = useState('authors')
   const [token, setToken] = useState(null)
+  const [favoriteGenre, setFavoriteGenre] = useState('')
   const client = useApolloClient()
 
   useEffect(() => {
     const token = localStorage.getItem('app-token')
     if (token) {
       setToken(token)
+      getUser()
+      if (userData.data && userData.data.me) {
+        setFavoriteGenre(userData.data.me.favoriteGenre)
+      }
     }
-  }, [])
+  }, [getUser, userData.data])
 
   const logout = () => {
     setToken(null)
@@ -31,7 +38,7 @@ const App = () => {
       <div>
         <button onClick={() => setPage('authors')}>authors</button>
         <button onClick={() => setPage('books')}>books</button>
-        <button onClick={() => setPage('recommended')}>recommendations</button>
+        {token != null && <button onClick={() => setPage('recommended')}>recommendations</button>}
         {token == null && <button onClick={() => setPage('login')}>login</button>}
         {token != null && <button onClick={() => setPage('add')}>add book</button>}
         {token != null && <button onClick={() => logout()}>logout</button>}
@@ -45,11 +52,11 @@ const App = () => {
         show={page === 'books'}
       />
 
-      <Recommended
+      <Recommended favoriteGenre={favoriteGenre}
         show={page === 'recommended'}
       />
 
-      <NewBook
+      <NewBook favoriteGenre={favoriteGenre}
         show={page === 'add'}
       />
 

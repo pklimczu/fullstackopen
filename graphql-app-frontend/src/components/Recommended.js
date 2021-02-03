@@ -1,25 +1,19 @@
 import { useLazyQuery } from '@apollo/client'
 import React, { useEffect, useState } from 'react'
-import { ME, SELECTED_BOOKS } from '../graphql/queries'
+import { ALL_BOOKS } from '../graphql/queries'
 
-const Recommended = ({ show }) => {
-    const [getUser, userData] = useLazyQuery(ME)
-    const [getBooks, booksData] = useLazyQuery(SELECTED_BOOKS)
-    const [genre, setGenre] = useState('')
+const Recommended = ({ favoriteGenre, show }) => {
+    const [getBooks, booksData] = useLazyQuery(ALL_BOOKS)
     const [books, setBooks] = useState([])
     
-
     useEffect(() => {
-        getUser()
-
-        if (userData.data) {
-            setGenre(userData.data.me.favoriteGenre)
-            getBooks({ variables: { genre }})
+        if (favoriteGenre) {
+            getBooks({ variables: { genre: favoriteGenre }})
             if (booksData.data) {
                 setBooks(booksData.data.allBooks)
             }
         }
-    }, [show, getUser, userData.data, getBooks, booksData.data, genre])
+    }, [show, getBooks, booksData.data, favoriteGenre])
 
     if (!show) {
         return null
@@ -27,7 +21,7 @@ const Recommended = ({ show }) => {
 
     return (
         <div>
-            <h2>recommendations for "{genre}" fan</h2>
+            <h2>recommendations for "{favoriteGenre}" fan</h2>
             <table>
                 <tbody>
                 <tr>
