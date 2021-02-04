@@ -3,9 +3,9 @@ import Authors from './components/Authors'
 import Books from './components/Books'
 import NewBook from './components/NewBook'
 import Login from './components/Login'
-import { useApolloClient, useLazyQuery } from '@apollo/client'
+import { useApolloClient, useLazyQuery, useSubscription } from '@apollo/client'
 import Recommended from './components/Recommended'
-import { ME } from './graphql/queries'
+import { ALL_BOOKS, BOOK_ADDED, ME } from './graphql/queries'
 
 
 const App = () => {
@@ -25,6 +25,28 @@ const App = () => {
       }
     }
   }, [getUser, userData.data])
+
+  const updateCacheWith = (addedBook) => {
+    const includedIn = (set, object) =>
+      set.map(p => p.title).includes(object.title)
+
+    const dataInStore = client.readQuery({ query: ALL_BOOKS, variables: { genre: '' } })
+
+    if (!includedIn(dataInStore.allBooks, addedBook)) {
+      client.writeQuery({
+        query: ALL_BOOKS,
+        variables: { genre: '' },
+        data: { allBooks: dataInStore.allBooks.concat(addedBook) }
+      })
+    }
+  }
+
+  useSubscription(BOOK_ADDED, {
+    onSubscriptionData: ({ subscriptionData }) => {
+      console.log(subscriptionData)
+      updateCacheWith(subscriptionData.data.bookAdded)
+    }
+  })
 
   const logout = () => {
     setToken(null)
