@@ -3,6 +3,10 @@ import { NewPatientEntry, NonSensitivePatientEntry, PatientEntry } from '../type
 
 const patients: Array<PatientEntry> = patientData;
 
+const getPatientById = (id: string): PatientEntry | undefined => {
+    return patients.find(entry => entry.id === id);
+};
+
 const getEntries = (): Array<NonSensitivePatientEntry> => {
     return patients.map(({ id, name, dateOfBirth, gender, occupation }) => ({
         id,
@@ -24,6 +28,7 @@ const addEntry = (entry: NewPatientEntry): PatientEntry => {
 };
 
 export default {
+    getPatientById,
     getEntries,
     addEntry
 };
