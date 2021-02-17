@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableWithoutFeedback, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import theme from '../theme';
 import Text from './Text';
 
@@ -14,11 +14,9 @@ const AppBarTab = ({ text }) => {
       });
 
     return (
-        <TouchableWithoutFeedback>
-            <Text style={styles.text}>
-                {text}
-            </Text>
-        </TouchableWithoutFeedback>
+        <Text style={styles.text}>
+            {text}
+        </Text>
     );
 };
 
