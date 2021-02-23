@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Route, Switch, Redirect } from 'react-router-native';
 import theme from '../theme';
@@ -15,12 +15,14 @@ const styles = StyleSheet.create({
 });
 
 const Main = () => {
+    const [userLogged, setUserLogged] = useState(false);
+
     return (
         <View style={styles.container}>
-            <AppBar />
+            <AppBar userLogged={userLogged} setUserLogged={setUserLogged} />
             <Switch>
                 <Route path="/signin" exact>
-                    <SignIn />
+                    <SignIn setUserLogged={setUserLogged} />
                 </Route>
                 <Route path="/" exact>
                     <RepositoryList />

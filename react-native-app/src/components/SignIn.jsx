@@ -3,13 +3,22 @@ import React from 'react';
 import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import theme from '../theme';
 import FormikTextInput from './FormikTextInput';
+import useSignIn from '../hooks/useSignIn';
 import * as yup from 'yup';
 
-const SignIn = () => {
+const SignIn = ({ setUserLogged }) => {
+  const [signIn] = useSignIn();
 
-  const onSubmit = (values) => {
-    console.log(values);
-  };
+  const onSubmit = async (values) => {
+    const { username, password } = values;
+
+    try {
+      await signIn({ username, password });
+      setUserLogged(true);
+    } catch (e) {
+      console.log(e);
+    }
+};
 
   const initialValues = {
     username: '',
