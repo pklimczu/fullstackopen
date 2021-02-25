@@ -29,7 +29,7 @@ const StatItem = ({ number, info }) => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.number}>{number}</Text>
+            <Text style={styles.number} testID="statItemNumber">{number}</Text>
             <Text style={styles.info}>{info}</Text>
         </View>
     );

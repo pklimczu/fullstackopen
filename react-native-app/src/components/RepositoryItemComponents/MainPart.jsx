@@ -55,10 +55,10 @@ const TopPart = ({ item }) => {
         <View style={styles.container}>
             <Image source={{uri: item["ownerAvatarUrl"]}} style={styles.avatar} />
             <View style={styles.textContainer}>
-                <Text style={styles.mainText}>{item["fullName"]}</Text>
-                <Text style={styles.description}>{item["description"]}</Text>
+                <Text style={styles.mainText} testID="fullName">{item["fullName"]}</Text>
+                <Text style={styles.description} testID="description">{item["description"]}</Text>
                 <View style={styles.languageContainer}>
-                    <Text style={styles.languageText}>{item["language"]}</Text>
+                    <Text style={styles.languageText} testID="language">{item["language"]}</Text>
                 </View>
             </View>
         </View>

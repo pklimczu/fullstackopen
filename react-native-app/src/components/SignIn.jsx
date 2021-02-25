@@ -6,20 +6,7 @@ import FormikTextInput from './FormikTextInput';
 import useSignIn from '../hooks/useSignIn';
 import * as yup from 'yup';
 
-const SignIn = ({ setUserLogged }) => {
-  const [signIn] = useSignIn();
-
-  const onSubmit = async (values) => {
-    const { username, password } = values;
-
-    try {
-      await signIn({ username, password });
-      setUserLogged(true);
-    } catch (e) {
-      console.log(e);
-    }
-};
-
+export const SignInContainer = ({onSubmit}) => {
   const initialValues = {
     username: '',
     password: '',
@@ -48,15 +35,32 @@ const SignIn = ({ setUserLogged }) => {
     <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema}>
       {({ handleSubmit }) => {return (
       <View>
-        <FormikTextInput name="username" placeholder="Username" />
-        <FormikTextInput name="password" placeholder="Password" secureTextEntry={true} />
+        <FormikTextInput name="username" placeholder="Username" testID="username" />
+        <FormikTextInput name="password" placeholder="Password" secureTextEntry={true} testID="password" />
         <TouchableWithoutFeedback onPress={handleSubmit}>
-          <Text style={styles.signinButton}>Sign in</Text>
+          <Text style={styles.signinButton} testID="button">Sign in</Text>
         </TouchableWithoutFeedback>
       </View>);
       }}
     </Formik>
   );
+};
+
+const SignIn = ({ setUserLogged }) => {
+  const [signIn] = useSignIn();
+
+  const onSubmit = async (values) => {
+    const { username, password } = values;
+
+    try {
+      await signIn({ username, password });
+      setUserLogged(true);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  return <SignInContainer onSubmit={onSubmit} />;
 };
 
 export default SignIn;
