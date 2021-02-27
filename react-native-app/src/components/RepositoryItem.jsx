@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import theme from '../theme';
 import MainPart from './RepositoryItemComponents/MainPart';
 import BottomPart from './RepositoryItemComponents/BottomPart';
+import { useHistory } from 'react-router-native';
 
 const styles = StyleSheet.create({
     container: {
@@ -12,14 +13,28 @@ const styles = StyleSheet.create({
     },
 });
 
-const RepositoryItem = ({ item }) => {
+export const RepositoryItemContainer = ({ item, showButton }) => {
     return (
-        <TouchableWithoutFeedback>
-            <View style={styles.container}>
-                <MainPart item={item} />
-                <BottomPart item={item} />
-            </View>
-        </TouchableWithoutFeedback>
+    <View>
+        <View style={styles.container}>
+            <MainPart item={item} />
+            <BottomPart item={item} showButton={showButton} />
+        </View>
+    </View>
+    );
+};
+
+const RepositoryItem = ({ item }) => {
+    const history = useHistory();
+
+    const onPressHandler = () => {
+        history.push(`/details/${item['id']}`);
+    };
+
+    return (
+        <TouchableOpacity onPress={onPressHandler}>
+            <RepositoryItemContainer item={item} />
+        </TouchableOpacity>
     );
 };
 

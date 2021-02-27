@@ -5,6 +5,7 @@ import theme from '../theme';
 import AppBar from './AppBar';
 import RepositoryList from './RepositoryList';
 import SignIn from './SignIn';
+import SingleRepositoryItem from './SingleRepositoryItem';
 
 const styles = StyleSheet.create({
     container: {
@@ -24,6 +25,7 @@ const Main = () => {
                 <Route path="/signin" exact>
                     <SignIn setUserLogged={setUserLogged} />
                 </Route>
+                <Route path="/details/:id" component={({ match }) => <SingleRepositoryItem match={match} showButton={true} />} />
                 <Route path="/" exact>
                     <RepositoryList />
                 </Route>

@@ -12,6 +12,7 @@ const theme = {
       backgroundLanguage: '#0366d6',
       borderColor: '#b9b9b9',
       errorColor: '#d73a4a',
+      ratingColor: '#000080',
     },
     fontSizes: {
       body: 15,

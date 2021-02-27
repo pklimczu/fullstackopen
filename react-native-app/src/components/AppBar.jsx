@@ -1,10 +1,9 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React from 'react';
 import { View, StyleSheet, ScrollView, TouchableHighlight } from 'react-native';
 import Constants from 'expo-constants';
 import AppBarTab from './AppBarTab';
 import theme from '../theme';
 import { Link } from 'react-router-native';
-import AuthStorageContext from '../contexts/AuthStorageContext';
 import useSignOut from '../hooks/useSignOut';
 
 const styles = StyleSheet.create({
