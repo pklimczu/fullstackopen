@@ -30,6 +30,10 @@ const styles = StyleSheet.create({
     flex: 0.85,
     margin: 5,
     zIndex: 30
+  },
+
+  flatList: {
+    marginBottom: 150
   }
 });
 
@@ -56,6 +60,7 @@ export const RepositoryListContainer = ({ repositories, onEndReach }) => {
   const repositoryNodes = repositories ? repositories.edges.map(edge => edge.node) : [];
 
   return <FlatList
+    style={styles.flatList}
     data={repositoryNodes}
     ItemSeparatorComponent={ItemSeparator}
     renderItem={({ item }) => <RepositoryItem item={item} />}

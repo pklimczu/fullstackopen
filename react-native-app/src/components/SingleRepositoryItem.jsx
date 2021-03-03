@@ -56,7 +56,6 @@ const SingleRepositoryItem = ({ match, showButton }) => {
                 }
             };
             setReviews(nextResult);
-            console.log("NEXT:", nextResult);
             return nextResult;
           },
         });

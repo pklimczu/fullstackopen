@@ -12,7 +12,7 @@ const MyReviews = () => {
     return (
         <FlatList
             data={data}
-            renderItem={({ item }) => <ReviewListItem review={item} />}
+            renderItem={({ item }) => <ReviewListItem review={item} showButtons={true} refetchHandler={reviews.refetch} />}
             ItemSeparatorComponent={ItemSeparator}
             keyExtractor={(repo) => repo["id"]}
         />

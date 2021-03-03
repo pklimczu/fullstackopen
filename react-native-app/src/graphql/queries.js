@@ -84,6 +84,7 @@ export const MY_REVIEWS = gql`
                     repository {
                         id
                         fullName
+                        url
                     }
                     user {
                         id

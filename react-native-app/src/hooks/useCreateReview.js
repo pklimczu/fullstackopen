@@ -9,8 +9,6 @@ const useCreateReview = () => {
     const signIn = async ({ owner, repositoryName, rating, review }) => {
         const { data } = await mutate({ variables: { owner, repositoryName, rating, review } });
 
-        console.log(data);
-
         history.push(`/details/${data["repositoryId"]}`);
     };
   

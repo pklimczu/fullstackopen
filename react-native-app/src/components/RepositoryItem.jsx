@@ -11,7 +11,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         padding: 5,
         zIndex: 0
-    },
+    }
 });
 
 export const RepositoryItemContainer = ({ item, showButton }) => {
