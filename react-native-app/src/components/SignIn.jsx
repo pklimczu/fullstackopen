@@ -2,7 +2,7 @@ import { Formik } from 'formik';
 import React from 'react';
 import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import theme from '../theme';
-import FormikTextInput from './FormikTextInput';
+import FormikTextInput from './misc/FormikTextInput';
 import useSignIn from '../hooks/useSignIn';
 import * as yup from 'yup';
 

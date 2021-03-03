@@ -1,28 +1,48 @@
 import { useQuery } from '@apollo/react-hooks';
-import { useState, useEffect } from 'react';
 import { GET_REPOSITORIES } from '../graphql/queries';
 
-const useRepositories = () => {
-  const [repositories, setRepositories] = useState();
-  const [loading, setLoading] = useState(false);
-  const repos = useQuery(GET_REPOSITORIES, {
+const useRepositories = ({ orderMethod, first }) => {
+  const variables = Object.assign({}, orderMethod["realValue"], { first: first });
+  const { data, loading, fetchMore, ...result } = useQuery(GET_REPOSITORIES, {
     fetchPolicy: 'cache-and-network',
+    variables,
   });
 
-  const fetchRepositories = async () => {
-      if (repos.loading) {
-        setLoading(true);
-      } else {
-          setRepositories(repos.data.repositories);
-          setLoading(false);
-      }
+  const handleFetchMore = () => {
+    const canFetchMore = !loading && data && data.repositories.pageInfo.hasNextPage;
+
+    if (!canFetchMore) {
+      return;
+    }
+
+    fetchMore({
+      query: GET_REPOSITORIES,
+      variables: {
+        after: data.repositories.pageInfo.endCursor,
+        ...variables,
+      },
+      updateQuery: (previousResult, { fetchMoreResult }) => {
+        const nextResult = {
+          repositories: {
+            ...fetchMoreResult.repositories,
+            edges: [
+              ...previousResult.repositories.edges,
+              ...fetchMoreResult.repositories.edges,
+            ],
+          },
+        };
+
+        return nextResult;
+      },
+    });
   };
 
-  useEffect(() => {
-    fetchRepositories();
-  }, []);
-
-  return { repositories, loading, refetch: fetchRepositories };
+  return { 
+    repositories: data ? data.repositories : undefined,
+    fetchMore: handleFetchMore,
+    loading,
+    ...result
+  };
 };
 
 export default useRepositories;

@@ -9,11 +9,17 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: theme.colors.backgroundContainer,
         marginBottom: 10,
-        padding: 5
+        padding: 5,
+        zIndex: 0
     },
 });
 
 export const RepositoryItemContainer = ({ item, showButton }) => {
+
+    if (item === undefined) {
+        return <View></View>;
+    }
+
     return (
     <View>
         <View style={styles.container}>

@@ -2,13 +2,12 @@ import { useQuery } from '@apollo/react-hooks';
 import React, { useEffect, useState } from 'react';
 import { GET_REPOSITORY, GET_REVIEWS } from '../graphql/queries';
 import { RepositoryItemContainer } from './RepositoryItem';
-import { FlatList, Text } from 'react-native';
+import { FlatList } from 'react-native';
 import ItemSeparator from './misc/ItemSeparator';
 import ReviewListItem from './RepositoryItemComponents/ReviewListItem';
 
 const SingleRepositoryItem = ({ match, showButton }) => {
-    console.log("-----------------------");
-
+    const [reviews, setReviews] = useState([]);
     const [isLoaded, setIsLoaded] = useState(false);
     const id = match["params"]["id"];
 
@@ -20,31 +19,68 @@ const SingleRepositoryItem = ({ match, showButton }) => {
     const review = useQuery(GET_REVIEWS,
         { 
             fetchPolicy: 'cache-and-network',
-            variables: { id }
+            variables: { id, first: 2 }
         });
 
     const fetchData = async () => {
         if (!repository.loading && !review.loading) {
             setIsLoaded(true);
-            console.log(repository.data.repository);
+            setReviews(review.data.repository.reviews.edges.map(edge => edge.node));
         }
     };
+
+    const handleFetchMoreReviews = () => {
+        const canFetchMore = !review.loading && review.data.repository && review.data.repository.reviews.pageInfo.hasNextPage;
+    
+        if (!canFetchMore) {
+          return;
+        }
+    
+        review.fetchMore({
+          query: GET_REVIEWS,
+          variables: {
+            after: review.data.repository.reviews.pageInfo.endCursor,
+            id: id, first: 2,
+          },
+          updateQuery: (previousResult, { fetchMoreResult }) => {
+            const nextResult = {
+                repository: {
+                    ...fetchMoreResult.repository,
+                    reviews: {
+                        ...fetchMoreResult.repository.reviews,
+                        edges: [
+                            ...previousResult.repository.reviews.edges,
+                            ...fetchMoreResult.repository.reviews.edges,
+                        ]
+                    }
+                }
+            };
+            setReviews(nextResult);
+            console.log("NEXT:", nextResult);
+            return nextResult;
+          },
+        });
+      };
 
     useEffect(() => {
         fetchData();
     }, [isLoaded, repository, review]);
           
-    if (!isLoaded) {
-        return <Text>Loading</Text>;
-    }
+    const onEndReach = () => {
+        handleFetchMoreReviews();
+    };
+
+    const headerComponent = (review.data && isLoaded) ? repository.data.repository : undefined;
 
     return (
         <FlatList
-            data={review.data.repository.reviews.edges}
+            data={reviews}
             renderItem={({ item }) => <ReviewListItem review={item} />}
             ItemSeparatorComponent={ItemSeparator}
-            keyExtractor={({ id }) => id}
-            ListHeaderComponent={() => <RepositoryItemContainer item={repository.data.repository} showButton={showButton} />}
+            keyExtractor={(repo) => repo["id"]}
+            ListHeaderComponent={() => <RepositoryItemContainer item={headerComponent} showButton={showButton} />}
+            onEndReached={onEndReach}
+            onEndReachedThreshold={0.5}
         />
     );
 };

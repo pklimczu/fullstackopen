@@ -20,9 +20,11 @@ const AppBar = ({ userLogged, setUserLogged }) => {
   return <View style={styles.container}>
     <ScrollView horizontal>
       <Link to="/"><AppBarTab text="Repositories" /></Link>
-      {userLogged 
-        ? <TouchableHighlight onPress={async () => await signOut()}><AppBarTab text="Sign out" /></TouchableHighlight> 
-        : <Link to="/signin"><AppBarTab text="Sign in" /></Link>}
+      {userLogged && <Link to="/createReview"><AppBarTab text="Create review" /></Link>}
+      {userLogged && <Link to="/myReviews"><AppBarTab text="My reviews"/></Link>}
+      {userLogged && <TouchableHighlight onPress={async () => await signOut()}><AppBarTab text="Sign out" /></TouchableHighlight>}
+      {!userLogged && <Link to="/signin"><AppBarTab text="Sign in" /></Link>}
+      {!userLogged && <Link to="/signup"><AppBarTab text="Sign up" /></Link>}
       </ScrollView>
   </View>;
 };

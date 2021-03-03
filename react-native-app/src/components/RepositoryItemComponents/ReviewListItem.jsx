@@ -30,10 +30,10 @@ const styles = StyleSheet.create({
 
 const ReviewListItem = ({ review }) => {
 
-    const rating = review["node"]["rating"];
-    const author = review["node"]["user"]["username"];
-    const comment = review["node"]["text"];
-    const createdAt = review["node"]["createdAt"];
+    const rating = review["rating"];
+    const author = review["user"]["username"];
+    const comment = review["text"];
+    const createdAt = review["createdAt"];
 
     return (
         <View style={styles.container}>
